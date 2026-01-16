@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# -e: Exit immediately if a command exits with a non-zero status.
+set -e
+
+if [ "$#" -ne 1 ]; then
+  # -e: Enable interpretation of backslash escapes.
+  echo -e "Please provide package name to build\nUsage: docker run --rm -v \$(pwd):/work rubensa/archlinux-build /bin/bash -c 'build-pkgbuild <package-name>'"
+  exit 1
+fi
+
+package=$1
+
+if [ ! -f /work/$package/PKGBUILD ]; then
+  echo "The folder /work/$package must contain the PKGBUILD file."
+  exit 1
+fi
+
+# -Syu: Synchronize packages, refresh package database and upgrade all packages.
+# --noconfirm: Bypass any and all “Are you sure?” messages.
+sudo pacman -Syu --noconfirm
+# -D "/work/$package": Change to directory <dir> before reading the PKGBUILD or doing anything else.
+# -s: Install missing dependencies using pacman.
+# -c: Clean up leftover work files and directories after a successful build.
+# -C: Clean build artifacts from previous runs of makepkg in the current directory by removing $srcdir before building the package.
+# -f: Build a package despite a built package already exists in the PKGDEST directory.
+# --noconfirm: (Passed to pacman) Prevent pacman from waiting for user input before proceeding with operations.
+makepkg -D "/work/$package" -s -c -C -f --noconfirm
+# -D "/work/$package": Change to directory <dir> before reading the PKGBUILD or doing anything else.
+# --printsrcinfo: Generate and print the SRCINFO file to stdout.
+makepkg -D "/work/$package" --printsrcinfo > "/work/$package/.SRCINFO"
+
+# -p: No error if existing, make parent directories as needed
+mkdir -p /work/$package-pkg
+mv /home/${USER_NAME}/out/* /work/$package-pkg

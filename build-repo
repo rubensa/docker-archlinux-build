@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# -e: Exit immediately if a command exits with a non-zero status.
+set -e
+
+if [ "$#" -ne 1 ]; then
+  # -e: Enable interpretation of backslash escapes.
+  echo -e "Please provide repo package name to build\nUsage: docker run --rm -v \$(pwd):/work rubensa/archlinux-build /bin/bash -c 'build-repo <package-name>'"
+  exit 1
+fi
+
+package=$1
+
+# --protocol https: Clone the repository over https.
+(cd /work && pkgctl repo clone --protocol=https "$package")
+
+if [ -f /work/$package/PKGBUILD ]
+then
+  build-pkgbuild $package
+else
+  echo "Unsupported package: error in choosing repository or architecture."
+  exit 1
+fi

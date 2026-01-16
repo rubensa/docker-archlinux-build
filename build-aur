@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# -e: Exit immediately if a command exits with a non-zero status.
+set -e
+
+if [ "$#" -ne 1 ]; then
+  # -e: Enable interpretation of backslash escapes.
+  echo -e "Please provide AUR package name to build\nUsage: docker run --rm -v \$(pwd):/work rubensa/archlinux-build /bin/bash -c 'build-aur <package-name>'"
+  exit 1
+fi
+
+package=$1
+
+# -p: No error if existing, make parent directories as needed
+mkdir -p /work/$package
+
+# --depth 1: Create a shallow clone with a history truncated to the specified number of commits.
+git clone --depth 1 https://aur.archlinux.org/$package.git /work/$package
+
+build-pkgbuild $package
