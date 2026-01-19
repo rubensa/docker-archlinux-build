@@ -95,4 +95,4 @@ $ docker run --rm -v $(pwd):/work rubensa/archlinux-build /bin/bash -c 'build-pk
 
 ### Compiled package location
 
-The binary will be placed in the /work/<package-name>-pkg folder, which in the example above is mounted to the current directory on the host.
+The binary will be placed in the `/work/<package-name>-pkg` folder, which in the example above is mounted to the current directory on the host.
